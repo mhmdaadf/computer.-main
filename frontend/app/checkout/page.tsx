@@ -15,6 +15,7 @@ function toArrayResponse<T>(payload: T[] | Paginated<T>) {
 export default function CheckoutPage() {
   const router = useRouter();
   const [addressId, setAddressId] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("COD");
   const [error, setError] = useState("");
 
   const cartQuery = useQuery({
@@ -36,7 +37,7 @@ export default function CheckoutPage() {
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
-      const payload = addressId ? { address_id: Number(addressId) } : {};
+      const payload = { address_id: Number(addressId), payment_method: paymentMethod };
       const response = await api.post("/orders/checkout/", payload);
       return unwrapApi(response.data);
     },
@@ -52,6 +53,10 @@ export default function CheckoutPage() {
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     setError("");
+    if (!addressId) {
+      setError("Please select a shipping address.");
+      return;
+    }
     checkoutMutation.mutate();
   };
 
@@ -69,7 +74,7 @@ export default function CheckoutPage() {
               onChange={(e) => setAddressId(e.target.value)}
               className="w-full rounded-lg border border-ink/20 px-3 py-2"
             >
-              <option value="">Select at checkout time</option>
+              <option value="">Select an address</option>
               {addressesQuery.data?.map((address) => (
                 <option key={address.id} value={address.id}>
                   {address.label} - {address.line1}, {address.city}
@@ -77,6 +82,33 @@ export default function CheckoutPage() {
               ))}
             </select>
           </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-semibold">Payment Method</span>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              className="w-full rounded-lg border border-ink/20 px-3 py-2"
+            >
+              <option value="COD">Cash on Delivery</option>
+              <option value="CARD">Card</option>
+            </select>
+          </label>
+
+          <div className="rounded-2xl border border-ink/10 p-4">
+            <p className="text-sm font-semibold uppercase tracking-wide text-ink/60">Order Summary</p>
+            <div className="mt-3 space-y-2">
+              {cartQuery.data?.items.map((item) => (
+                <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-ink/75">
+                    {item.product.name} x {item.quantity}
+                  </span>
+                  <span className="font-semibold text-ink">${item.subtotal}</span>
+                </div>
+              ))}
+              {!cartQuery.data?.items.length && <p className="text-sm text-ink/60">Your cart is empty.</p>}
+            </div>
+          </div>
 
           <div className="rounded-2xl bg-ink p-4 text-cream">
             <p className="text-sm uppercase tracking-wide">Order Total</p>

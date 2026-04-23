@@ -12,7 +12,7 @@ from .models import Order, OrderItem
 
 
 @transaction.atomic
-def checkout_cart(*, user, address_id=None):
+def checkout_cart(*, user, address_id, payment_method):
     cart = get_or_create_active_cart(user)
     items = list(CartItem.objects.select_related("product").filter(cart=cart))
     if not items:
@@ -49,6 +49,7 @@ def checkout_cart(*, user, address_id=None):
         cart=cart,
         address=address,
         shipping_full_text=shipping_full_text,
+        payment_method=payment_method,
     )
 
     for item in items:

@@ -12,15 +12,23 @@ class ProductFilter(filters.FilterSet):
     max_price = filters.NumberFilter(field_name="price", lookup_expr="lte")
     brand = filters.CharFilter(field_name="brand", lookup_expr="icontains")
     compatibility_tag = filters.CharFilter(method="filter_compatibility_tag")
+    in_stock = filters.BooleanFilter(method="filter_in_stock")
 
     class Meta:
         model = Product
-        fields = ["category", "min_price", "max_price", "brand", "compatibility_tag"]
+        fields = ["category", "min_price", "max_price", "brand", "compatibility_tag", "in_stock"]
 
     def filter_compatibility_tag(self, queryset, name, value):
         if connection.vendor == "postgresql":
             return queryset.filter(compatibility_tags__contains=[value])
         return queryset.filter(compatibility_tags__icontains=value)
+
+    def filter_in_stock(self, queryset, name, value):
+        if value is True:
+            return queryset.filter(stock__gt=0)
+        if value is False:
+            return queryset.filter(stock=0)
+        return queryset
 
 
 class CategoryListAPIView(generics.ListAPIView):

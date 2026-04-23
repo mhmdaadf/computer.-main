@@ -10,4 +10,29 @@
       <strong>Orders Count:</strong> {{ orders_count }}
     </div>
   </div>
+  <div style="margin-top:12px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;max-width:720px;">
+    <h3 style="margin:0 0 8px 0;">Top Products</h3>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #e5e7eb;">Product</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #e5e7eb;">Units Sold</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #e5e7eb;">Revenue</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in top_products %}
+          <tr>
+            <td style="padding:6px;border-bottom:1px solid #f3f4f6;">{{ product.product_name }}</td>
+            <td style="padding:6px;border-bottom:1px solid #f3f4f6;">{{ product.total_sold }}</td>
+            <td style="padding:6px;border-bottom:1px solid #f3f4f6;">{{ product.revenue }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" style="padding:6px;">No product sales yet.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

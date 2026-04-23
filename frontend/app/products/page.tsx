@@ -17,6 +17,8 @@ export default function ProductsPage() {
     min_price: "",
     max_price: "",
     search: "",
+    in_stock: "",
+    ordering: "-created_at",
   });
 
   const categoriesQuery = useQuery({

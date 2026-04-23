@@ -14,7 +14,11 @@ class CheckoutAPIView(APIView):
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        order = checkout_cart(user=request.user, address_id=serializer.validated_data.get("address_id"))
+        order = checkout_cart(
+            user=request.user,
+            address_id=serializer.validated_data["address_id"],
+            payment_method=serializer.validated_data["payment_method"],
+        )
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
 

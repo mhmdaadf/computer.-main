@@ -74,6 +74,7 @@ export interface AuthUser {
   email: string;
   username: string;
   full_name: string;
+  phone?: string;
   is_staff?: boolean;
 }
 

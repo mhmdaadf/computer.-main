@@ -4,7 +4,8 @@ from .models import Order, OrderItem
 
 
 class CheckoutSerializer(serializers.Serializer):
-    address_id = serializers.IntegerField(required=False)
+    address_id = serializers.IntegerField(required=True)
+    payment_method = serializers.ChoiceField(choices=Order.PaymentMethod.choices, required=True)
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -26,6 +27,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "total_price",
             "address",
             "shipping_full_text",
+            "payment_method",
             "created_at",
             "items",
         ]

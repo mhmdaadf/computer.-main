@@ -6,6 +6,10 @@ from apps.users.models import Address, CustomUser
 
 
 class Order(models.Model):
+    class PaymentMethod(models.TextChoices):
+        COD = "COD", "Cash on Delivery"
+        CARD = "CARD", "Card"
+
     class Status(models.TextChoices):
         PENDING = "PENDING", "Pending"
         PAID = "PAID", "Paid"
@@ -16,6 +20,7 @@ class Order(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
     shipping_full_text = models.TextField(blank=True)
+    payment_method = models.CharField(max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.COD)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -11,6 +11,8 @@ interface Props {
     min_price: string;
     max_price: string;
     search: string;
+    in_stock: string;
+    ordering: string;
   };
   onChange: (field: string, value: string) => void;
 }
@@ -44,6 +46,24 @@ export default function FilterSidebar({ categories, filters, onChange }: Props) 
           placeholder="Brand"
           className="w-full rounded-lg border border-ink/20 px-3 py-2"
         />
+        <select
+          value={filters.in_stock}
+          onChange={(e) => onChange("in_stock", e.target.value)}
+          className="w-full rounded-lg border border-ink/20 px-3 py-2"
+        >
+          <option value="">Any Availability</option>
+          <option value="true">In Stock</option>
+          <option value="false">Out of Stock</option>
+        </select>
+        <select
+          value={filters.ordering}
+          onChange={(e) => onChange("ordering", e.target.value)}
+          className="w-full rounded-lg border border-ink/20 px-3 py-2"
+        >
+          <option value="-created_at">Newest</option>
+          <option value="price">Price: Low to High</option>
+          <option value="-price">Price: High to Low</option>
+        </select>
         <input
           value={filters.compatibility_tag}
           onChange={(e) => onChange("compatibility_tag", e.target.value)}
