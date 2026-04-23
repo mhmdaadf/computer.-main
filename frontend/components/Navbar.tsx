@@ -51,12 +51,14 @@ export default function Navbar() {
               Dashboard
             </Link>
           )}
-          {ready && authenticated && user?.is_staff && (
+          {ready && authenticated && (
             <a
               href={adminUrl}
+              target="_self"
               className="rounded-full border border-ink/20 bg-white px-3 py-1.5 text-sm font-semibold text-ink"
+              title={user?.is_staff ? "Open Django Admin Dashboard" : "Admin dashboard (staff only)"}
             >
-              Admin
+              Admin Dashboard
             </a>
           )}
           {ready && !authenticated && (

@@ -13,6 +13,7 @@ function toArrayResponse<T>(payload: T[] | Paginated<T>) {
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
+  const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://127.0.0.1:8000/admin/";
   const [profileError, setProfileError] = useState("");
   const [addressError, setAddressError] = useState("");
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
@@ -137,6 +138,15 @@ export default function DashboardPage() {
         <div className="rounded-3xl border border-ink/10 bg-white p-6 shadow-card">
           <h1 className="font-display text-3xl font-black">Dashboard</h1>
           <p className="mt-2 text-ink/70">{profileQuery.data?.email}</p>
+          <div className="mt-4 rounded-xl border border-ink/10 bg-ink/5 p-3">
+            <p className="text-sm font-semibold text-ink">Admin Dashboard</p>
+            <p className="mt-1 text-sm text-ink/70">
+              URL: <span className="font-mono">{adminUrl}</span>
+            </p>
+            <a href={adminUrl} target="_self" className="mt-2 inline-block rounded-lg bg-ink px-3 py-1.5 text-sm font-semibold text-cream">
+              Open Admin Dashboard
+            </a>
+          </div>
           <form onSubmit={onProfileSubmit} className="mt-4 grid gap-2 md:grid-cols-3">
             <input
               placeholder="Username"

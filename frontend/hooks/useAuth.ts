@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { getAuthUser, isAuthenticated } from "@/lib/auth";
+import { getAuthEventName, getAuthUser, isAuthenticated } from "@/lib/auth";
 import { AuthUser } from "@/types";
 
 export function useAuth() {
@@ -11,9 +11,22 @@ export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    setAuthenticated(isAuthenticated());
-    setUser(getAuthUser());
+    const syncAuthState = () => {
+      setAuthenticated(isAuthenticated());
+      setUser(getAuthUser());
+    };
+
+    syncAuthState();
     setReady(true);
+
+    const authEventName = getAuthEventName();
+    window.addEventListener(authEventName, syncAuthState);
+    window.addEventListener("storage", syncAuthState);
+
+    return () => {
+      window.removeEventListener(authEventName, syncAuthState);
+      window.removeEventListener("storage", syncAuthState);
+    };
   }, []);
 
   return { ready, authenticated, user };
