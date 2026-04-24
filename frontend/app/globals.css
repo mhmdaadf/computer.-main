@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --paper: #fff9f0;
-  --ink: #0f172a;
+  --paper: #f6f8ff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --surface: #ffffff;
+  --border: #dbe2f0;
 }
 
 body {
@@ -12,9 +15,9 @@ body {
   min-height: 100vh;
   font-family: var(--font-space-grotesk), sans-serif;
   background:
-    radial-gradient(circle at 10% 10%, rgba(249, 115, 22, 0.2), transparent 40%),
-    radial-gradient(circle at 90% 0%, rgba(8, 145, 178, 0.2), transparent 35%),
-    linear-gradient(180deg, #fff9f0 0%, #fff 100%);
+    radial-gradient(circle at 12% 12%, rgba(14, 165, 233, 0.14), transparent 38%),
+    radial-gradient(circle at 92% 0%, rgba(249, 115, 22, 0.16), transparent 32%),
+    linear-gradient(180deg, #f6f8ff 0%, #f3f6ff 40%, #f9fafb 100%);
   color: var(--ink);
 }
 
@@ -24,5 +27,85 @@ body {
 
 .container-shell {
   margin-inline: auto;
-  width: min(1120px, 100% - 2rem);
+  width: min(1200px, 100% - 2rem);
+}
+
+a,
+button {
+  transition: all 220ms ease;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eef2ff;
+}
+
+.glass-card {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.88) 100%);
+  box-shadow: 0 24px 48px -32px rgba(17, 24, 39, 0.38);
+}
+
+.soft-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 16px 36px -30px rgba(17, 24, 39, 0.4);
+}
+
+.btn-press:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.fade-up {
+  animation: fade-up 420ms ease both;
+}
+
+.fade-in {
+  animation: fade-in 360ms ease both;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #edf2ff 25%, #f7f9ff 50%, #edf2ff 75%);
+  background-size: 220% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
