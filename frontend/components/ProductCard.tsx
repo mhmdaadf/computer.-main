@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,17 +9,20 @@ import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { api, unwrapApi } from "@/lib/api";
 import { Product } from "@/types";
+import { formatCurrency, resolveProductImage, ratingForProduct, reviewsForProduct, stockTone } from "@/lib/product-ui";
+import RatingStars from "./RatingStars";
+import QuickViewModal from "./QuickViewModal";
+import { toast } from "@/hooks/useToast";
 
 export default function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
-  const apiOrigin = apiBase.replace(/\/api\/?$/, "");
-  const imageSrc = product.image
-    ? product.image.startsWith("http")
-      ? product.image
-      : `${apiOrigin}${product.image.startsWith("/") ? "" : "/"}${product.image}`
-    : null;
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  
+  const imageSrc = resolveProductImage(product.image);
+  const rating = ratingForProduct(product);
+  const reviews = reviewsForProduct(product);
+  const stockInfo = stockTone(product.stock);
 
   const addMutation = useMutation({
     mutationFn: async () => {
@@ -30,7 +34,12 @@ export default function ProductCard({ product }: { product: Product }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success(`Added ${product.name} to cart`);
+      setIsQuickViewOpen(false);
     },
+    onError: () => {
+      toast.error("Failed to add to cart. Please try again.");
+    }
   });
 
   const handleAdd = () => {
@@ -42,40 +51,98 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <article className="animate-rise rounded-2xl border border-ink/10 bg-white p-4 shadow-card">
-      <div className="mb-3 h-40 overflow-hidden rounded-xl bg-gradient-to-br from-cyanpop/10 via-white to-amberpop/20">
-        {imageSrc ? (
-          <div className="relative h-full w-full">
-            <Image src={imageSrc} alt={product.name} fill sizes="(max-width: 768px) 100vw, 30vw" className="object-cover" />
+    <>
+      <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-surface soft-card">
+        {/* Wishlist Button (UI Only) */}
+        <button className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-surface/80 text-muted backdrop-blur transition-all hover:bg-coral hover:text-white hover:scale-110">
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </button>
+
+        {/* Image Area */}
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-surfaceMuted">
+          {imageSrc ? (
+            <Image 
+              src={imageSrc} 
+              alt={product.name} 
+              fill 
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" 
+              className="object-cover transition-transform duration-500 group-hover:scale-105" 
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-muted">No Image</div>
+          )}
+          
+          {/* Quick View Overlay */}
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/20 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
+            <button
+              onClick={() => setIsQuickViewOpen(true)}
+              className="translate-y-4 rounded-full bg-surface px-6 py-2.5 font-semibold text-ink shadow-lg transition-all duration-300 hover:bg-cyanpop hover:text-white group-hover:translate-y-0 btn-press"
+            >
+              Quick View
+            </button>
           </div>
-        ) : null}
-      </div>
-      <p className="text-xs font-bold uppercase tracking-wide text-cyanpop">{product.category.name}</p>
-      <h3 className="mt-1 font-display text-xl font-bold text-ink">{product.name}</h3>
-      <p className="mt-2 line-clamp-2 text-sm text-ink/70">{product.description}</p>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {product.compatibility_tags.slice(0, 3).map((tag) => (
-          <span key={tag} className="rounded-full bg-ink/5 px-2 py-1 text-xs font-semibold text-ink/70">
-            {tag}
-          </span>
-        ))}
-      </div>
-      <div className="mt-4 flex items-center justify-between">
-        <span className="font-mono text-lg font-bold text-ink">${product.price}</span>
-        <div className="flex gap-2">
-          <Link href={`/products/${product.slug}`} className="rounded-lg border border-ink/20 px-3 py-1.5 text-sm font-semibold">
-            Details
-          </Link>
-          <button
-            type="button"
-            onClick={handleAdd}
-            disabled={addMutation.isPending || product.stock === 0}
-            className="rounded-lg bg-coral px-3 py-1.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-ink/30"
-          >
-            {product.stock === 0 ? "Out" : addMutation.isPending ? "Adding" : "Add"}
-          </button>
         </div>
-      </div>
-    </article>
+
+        {/* Content Area */}
+        <div className="flex flex-1 flex-col p-5">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-xs font-bold uppercase tracking-widest text-cyanpop">{product.category.name}</p>
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${stockInfo.classes}`}>
+              {stockInfo.label}
+            </span>
+          </div>
+          
+          <Link href={`/products/${product.slug}`} className="group-hover:text-cyanpop transition-colors">
+            <h3 className="font-display text-lg font-bold text-ink line-clamp-2 leading-tight">{product.name}</h3>
+          </Link>
+          
+          <div className="mt-2 flex items-center gap-2">
+            <RatingStars value={rating} />
+            <span className="text-xs text-muted">({reviews})</span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {product.compatibility_tags.slice(0, 3).map((tag) => (
+              <span key={tag} className="rounded border border-border bg-surfaceMuted px-1.5 py-0.5 text-[10px] font-medium text-muted">
+                {tag}
+              </span>
+            ))}
+          </div>
+          
+          <div className="mt-auto pt-5 flex items-end justify-between">
+            <span className="font-mono text-xl font-bold text-ink">{formatCurrency(product.price)}</span>
+            
+            <button
+              type="button"
+              onClick={handleAdd}
+              disabled={addMutation.isPending || product.stock === 0}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-coral text-white transition-all hover:bg-coral/90 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-md btn-press"
+              aria-label="Add to cart"
+            >
+              {addMutation.isPending ? (
+                <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                  <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <QuickViewModal 
+        product={product}
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+        onAdd={() => handleAdd()}
+        isAdding={addMutation.isPending}
+      />
+    </>
   );
 }

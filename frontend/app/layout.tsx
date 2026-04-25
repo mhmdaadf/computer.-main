@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ToastGlobal from "@/components/ToastGlobal";
 import Providers from "@/app/providers";
 
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -30,10 +38,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} flex min-h-screen flex-col font-sans antialiased`}>
         <Providers>
           <Navbar />
-          <main className="container-shell py-8">{children}</main>
+          <main className="container-shell flex-grow py-8 md:py-12">{children}</main>
+          <Footer />
+          <ToastGlobal />
         </Providers>
       </body>
     </html>
