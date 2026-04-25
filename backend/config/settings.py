@@ -22,6 +22,7 @@ elif len(SECRET_KEY) < 32 and not DEBUG:
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()]
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -152,4 +153,90 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+# ---------------------------------------------------------------------------
+# Jazzmin Admin Theme
+# ---------------------------------------------------------------------------
+JAZZMIN_SETTINGS = {
+    "site_title": "Circuit Cartel Admin",
+    "site_header": "Circuit Cartel",
+    "site_brand": "Circuit Cartel",
+    "welcome_sign": "Welcome to Circuit Cartel Admin",
+    "copyright": "Circuit Cartel",
+
+    # Links to put along the top menu
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Visit Store", "url": "http://localhost:3000", "new_window": True},
+    ],
+
+    # Hide these apps from the sidebar
+    "hide_apps": ["token_blacklist"],
+
+    # Custom icons for apps/models
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.Group": "fas fa-users",
+        "users.CustomUser": "fas fa-user-shield",
+        "products.Product": "fas fa-microchip",
+        "products.Category": "fas fa-tags",
+        "cart.Cart": "fas fa-shopping-cart",
+        "cart.CartItem": "fas fa-cart-plus",
+        "orders.Order": "fas fa-receipt",
+        "orders.OrderItem": "fas fa-boxes",
+        "users.Address": "fas fa-map-marker-alt",
+        "users.ContactMessage": "fas fa-envelope",
+    },
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+
+    # Related Modal
+    "related_modal_active": True,
+
+    # UI Tweaks
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "order_with_respect_to": [
+        "users",
+        "products",
+        "cart",
+        "orders",
+    ],
+
+    # Custom CSS/JS
+    "custom_css": None,
+    "custom_js": None,
+    "show_ui_builder": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": False,
+    "accent": "accent-info",
+    "navbar": "navbar-dark",
+    "no_navbar_border": True,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-info",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "darkly",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success",
+    },
 }
