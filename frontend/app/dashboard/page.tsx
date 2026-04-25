@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, useEffect } from "react";
+import React, { FormEvent, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -8,16 +8,16 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { api, unwrapApi } from "@/lib/api";
 import { Address, AuthUser, Order, Paginated } from "@/types";
 import { formatCurrency } from "@/lib/product-ui";
+import { toArrayResponse } from "@/lib/utils";
 import { toast } from "@/hooks/useToast";
 
-function toArrayResponse<T>(payload: T[] | Paginated<T>) {
-  return Array.isArray(payload) ? payload : payload.results;
-}
+
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
   const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://127.0.0.1:8000/admin/";
   const [activeTab, setActiveTab] = useState<"overview" | "orders" | "addresses" | "settings">("overview");
+  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
   const [profileForm, setProfileForm] = useState({
@@ -175,7 +175,7 @@ export default function DashboardPage() {
             <button
               key={tab.id}
               onClick={() => {
-                setActiveTab(tab.id as any);
+                setActiveTab(tab.id as "overview" | "orders" | "addresses" | "settings");
                 setEditingAddressId(null);
               }}
               className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-6 py-4 text-sm font-bold transition-colors ${
@@ -300,7 +300,8 @@ export default function DashboardPage() {
                     </thead>
                     <tbody className="divide-y divide-border">
                       {ordersQuery.data.map((order) => (
-                        <tr key={order.id} className="hover:bg-surfaceMuted/50 transition-colors">
+                        <React.Fragment key={order.id}>
+                        <tr className="hover:bg-surfaceMuted/50 transition-colors">
                           <td className="px-6 py-4 font-bold text-ink">#{order.id}</td>
                           <td className="px-6 py-4 text-muted">{new Date(order.created_at).toLocaleDateString()}</td>
                           <td className="px-6 py-4">
@@ -310,9 +311,49 @@ export default function DashboardPage() {
                           </td>
                           <td className="px-6 py-4 font-mono font-bold text-ink">{formatCurrency(order.total_price)}</td>
                           <td className="px-6 py-4 text-right">
-                            <button className="text-cyanpop font-semibold hover:underline">View Details</button>
+                            <button
+                              onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                              className="text-cyanpop font-semibold hover:underline"
+                            >
+                              {expandedOrderId === order.id ? "Hide" : "View Details"}
+                            </button>
                           </td>
                         </tr>
+                        {expandedOrderId === order.id && (
+                          <tr>
+                            <td colSpan={5} className="px-6 py-4 bg-surfaceMuted/50">
+                              <div className="space-y-3">
+                                <div className="flex flex-wrap gap-4 text-sm text-muted mb-3">
+                                  <span><strong className="text-ink">Payment:</strong> {order.payment_method === 'COD' ? 'Cash on Delivery' : 'Credit Card'}</span>
+                                  {order.shipping_full_text && <span><strong className="text-ink">Ships to:</strong> {order.shipping_full_text}</span>}
+                                </div>
+                                <div className="rounded-lg border border-border overflow-hidden">
+                                  <table className="w-full text-sm">
+                                    <thead className="bg-surface">
+                                      <tr>
+                                        <th className="text-left px-4 py-2 font-semibold text-muted">Product</th>
+                                        <th className="text-left px-4 py-2 font-semibold text-muted">Qty</th>
+                                        <th className="text-left px-4 py-2 font-semibold text-muted">Unit Price</th>
+                                        <th className="text-right px-4 py-2 font-semibold text-muted">Line Total</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-border">
+                                      {order.items.map((item) => (
+                                        <tr key={item.id}>
+                                          <td className="px-4 py-2 text-ink font-medium">{item.product_name}</td>
+                                          <td className="px-4 py-2 text-muted">{item.quantity}</td>
+                                          <td className="px-4 py-2 font-mono text-muted">{formatCurrency(item.unit_price)}</td>
+                                          <td className="px-4 py-2 font-mono text-ink text-right">{formatCurrency(item.line_total)}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        </React.Fragment>
                       ))}
                     </tbody>
                   </table>

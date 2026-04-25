@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { api, unwrapApi } from "@/lib/api";
 import { Cart } from "@/types";
 import { formatCurrency, resolveProductImage } from "@/lib/product-ui";
@@ -77,6 +78,7 @@ export default function CartPage() {
   const finalTotal = Number(cart.total_price) + taxAmount;
 
   return (
+    <ProtectedRoute>
     <div className="mx-auto max-w-6xl fade-up">
       <div className="mb-8 flex items-end justify-between">
         <div>
@@ -217,5 +219,6 @@ export default function CartPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

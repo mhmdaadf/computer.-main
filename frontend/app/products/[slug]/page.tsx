@@ -9,8 +9,8 @@ import { useParams, useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { api, unwrapApi } from "@/lib/api";
 import { Paginated, Product } from "@/types";
-import { formatCurrency, resolveProductImage, ratingForProduct, reviewsForProduct, stockTone } from "@/lib/product-ui";
-import RatingStars from "@/components/RatingStars";
+import { formatCurrency, resolveProductImage, stockTone } from "@/lib/product-ui";
+
 import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import { toast } from "@/hooks/useToast";
@@ -20,7 +20,7 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">("description");
+  const [activeTab, setActiveTab] = useState<"description" | "specs">("description");
 
   const productQuery = useQuery({
     queryKey: ["product", params.slug],
@@ -94,8 +94,6 @@ export default function ProductDetailPage() {
   }
 
   const imageSrc = resolveProductImage(product.image);
-  const rating = ratingForProduct(product);
-  const reviews = reviewsForProduct(product);
   const stockInfo = stockTone(product.stock);
 
   return (
@@ -157,11 +155,7 @@ export default function ProductDetailPage() {
               )}
             </div>
             
-            <button className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-surface/80 text-muted backdrop-blur shadow-sm transition-all hover:bg-coral hover:text-white hover:scale-110">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </button>
+
           </div>
         </div>
 
@@ -176,13 +170,6 @@ export default function ProductDetailPage() {
           </h1>
           
           <div className="mt-4 flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <RatingStars value={rating} size="md" />
-              <a href="#reviews" onClick={() => setActiveTab("reviews")} className="text-sm font-semibold text-cyanpop hover:underline">
-                {reviews} Reviews
-              </a>
-            </div>
-            <div className="h-4 w-px bg-border"></div>
             <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider border ${stockInfo.classes}`}>
               {stockInfo.label}
             </span>
@@ -288,13 +275,6 @@ export default function ProductDetailPage() {
           >
             Specifications
           </button>
-          <button 
-            id="reviews"
-            className={`px-6 py-3 font-display font-bold text-lg transition-colors border-b-2 ${activeTab === 'reviews' ? 'border-cyanpop text-cyanpop' : 'border-transparent text-muted hover:text-ink'}`}
-            onClick={() => setActiveTab('reviews')}
-          >
-            Reviews ({reviews})
-          </button>
         </div>
         
         <div className="py-8 animate-fade-in">
@@ -318,31 +298,7 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          {activeTab === 'reviews' && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-4 border-b border-border pb-6">
-                <div className="flex flex-col items-center justify-center rounded-2xl bg-surfaceMuted p-6 px-10 text-center">
-                  <span className="font-display text-5xl font-black text-ink">{rating}</span>
-                  <RatingStars value={rating} size="md" />
-                  <span className="mt-2 text-sm text-muted">Based on {reviews} reviews</span>
-                </div>
-                <div className="flex-1 space-y-2">
-                  {[5, 4, 3, 2, 1].map((star) => (
-                    <div key={star} className="flex items-center gap-2 text-sm">
-                      <span className="w-12 text-muted">{star} stars</span>
-                      <div className="h-2.5 flex-1 rounded-full bg-surfaceMuted overflow-hidden">
-                        <div 
-                          className="h-full bg-amber-400 rounded-full" 
-                          style={{ width: `${star === Math.round(rating) ? 60 : star > rating ? 5 : 20}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <p className="text-muted italic">Customer reviews feature is coming soon to this demo.</p>
-            </div>
-          )}
+
         </div>
       </section>
 

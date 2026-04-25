@@ -1,4 +1,3 @@
-import { Product } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 const API_ORIGIN = API_BASE.replace(/\/api\/?$/, "");
@@ -16,16 +15,6 @@ export function formatCurrency(value: string | number) {
     currency: "USD",
     maximumFractionDigits: 2,
   }).format(Number.isFinite(amount) ? amount : 0);
-}
-
-export function ratingForProduct(product: Product) {
-  const base = 3.8;
-  const modifier = (product.id % 11) * 0.11;
-  return Math.min(5, Number((base + modifier).toFixed(1)));
-}
-
-export function reviewsForProduct(product: Product) {
-  return 18 + (product.id % 9) * 14;
 }
 
 export function stockTone(stock: number) {

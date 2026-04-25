@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.postgres",
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
@@ -40,6 +39,11 @@ INSTALLED_APPS = [
     "apps.cart",
     "apps.orders",
 ]
+
+USE_SQLITE = os.getenv("USE_SQLITE", "False") == "True"
+
+if not USE_SQLITE:
+    INSTALLED_APPS.insert(6, "django.contrib.postgres")
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -74,7 +78,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-USE_SQLITE = os.getenv("USE_SQLITE", "False") == "True"
+# USE_SQLITE is declared above INSTALLED_APPS
 
 if USE_SQLITE:
     DATABASES = {

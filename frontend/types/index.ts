@@ -65,6 +65,7 @@ export interface Order {
   total_price: string;
   address: number | null;
   shipping_full_text: string;
+  payment_method: "COD" | "CARD";
   created_at: string;
   items: OrderItem[];
 }

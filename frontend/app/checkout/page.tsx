@@ -9,11 +9,10 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { api, unwrapApi } from "@/lib/api";
 import { Address, Cart, Paginated } from "@/types";
 import { formatCurrency, resolveProductImage } from "@/lib/product-ui";
+import { toArrayResponse } from "@/lib/utils";
 import { toast } from "@/hooks/useToast";
 
-function toArrayResponse<T>(payload: T[] | Paginated<T>) {
-  return Array.isArray(payload) ? payload : payload.results;
-}
+
 
 export default function CheckoutPage() {
   const router = useRouter();

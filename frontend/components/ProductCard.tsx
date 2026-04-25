@@ -9,8 +9,7 @@ import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { api, unwrapApi } from "@/lib/api";
 import { Product } from "@/types";
-import { formatCurrency, resolveProductImage, ratingForProduct, reviewsForProduct, stockTone } from "@/lib/product-ui";
-import RatingStars from "./RatingStars";
+import { formatCurrency, resolveProductImage, stockTone } from "@/lib/product-ui";
 import QuickViewModal from "./QuickViewModal";
 import { toast } from "@/hooks/useToast";
 
@@ -20,8 +19,6 @@ export default function ProductCard({ product }: { product: Product }) {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   
   const imageSrc = resolveProductImage(product.image);
-  const rating = ratingForProduct(product);
-  const reviews = reviewsForProduct(product);
   const stockInfo = stockTone(product.stock);
 
   const addMutation = useMutation({
@@ -53,12 +50,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <>
       <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-surface soft-card">
-        {/* Wishlist Button (UI Only) */}
-        <button className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-surface/80 text-muted backdrop-blur transition-all hover:bg-coral hover:text-white hover:scale-110">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
+
 
         {/* Image Area */}
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-surfaceMuted">
@@ -98,10 +90,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <h3 className="font-display text-lg font-bold text-ink line-clamp-2 leading-tight">{product.name}</h3>
           </Link>
           
-          <div className="mt-2 flex items-center gap-2">
-            <RatingStars value={rating} />
-            <span className="text-xs text-muted">({reviews})</span>
-          </div>
+
 
           <div className="mt-3 flex flex-wrap gap-1.5">
             {product.compatibility_tags.slice(0, 3).map((tag) => (
