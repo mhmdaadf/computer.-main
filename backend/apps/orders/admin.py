@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import DecimalField, ExpressionWrapper, F, Sum
+from django.db.models import Count, DecimalField, ExpressionWrapper, F, Sum
 from django.db.models.functions import TruncMonth
 
 from .models import Order, OrderItem
@@ -30,7 +30,7 @@ class OrderAdmin(admin.ModelAdmin):
         revenue_over_time = (
             Order.objects.annotate(month=TruncMonth("created_at"))
             .values("month")
-            .annotate(revenue=Sum("total_price"), count=Sum("id", distinct=True))
+            .annotate(revenue=Sum("total_price"), count=Count("id", distinct=True))
             .order_by("-month")[:12]
         )
         extra_context["total_sales"] = stats.get("total_sales") or 0
